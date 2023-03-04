@@ -1,9 +1,9 @@
 from typing import List
 
 from django.shortcuts import get_object_or_404
-from ninja import NinjaAPI, Form
+from ninja import NinjaAPI, Form, File, UploadedFile
 from .schema import CategorySchema, ProductSchema
-from .models import Category, Product
+from .models import Category, Product, Media
 
 api = NinjaAPI()
 
@@ -47,7 +47,7 @@ def get_product_by_category(request, category_slug: str):
 @api.put('edite/category/{category_id}')
 def update_category(request, category_id: int, data: CategorySchema):
     category = get_object_or_404(Category, id=category_id)
-    for attr , value in data.dict().items():
+    for attr, value in data.dict().items():
         if value:
             setattr(category, attr, value)
 
@@ -57,9 +57,9 @@ def update_category(request, category_id: int, data: CategorySchema):
 
 
 @api.patch('edite/product/{product_id}')
-def update_product(request, product_id:int, data: ProductSchema):
+def update_product(request, product_id: int, data: ProductSchema):
     product = get_object_or_404(Product, id=product_id)
-    for attr , value in data.dict().items():
+    for attr, value in data.dict().items():
         if value:
             setattr(Product, attr, value)
     product.save()
@@ -68,23 +68,27 @@ def update_product(request, product_id:int, data: ProductSchema):
 
 
 @api.delete('delete/category/{category_id}')
-def delete_category(request, category_id:int):
+def delete_category(request, category_id: int):
     category = get_object_or_404(Category, id=category_id)
     category.delete()
 
-    return {'result':f'deleted category name :  {category.name}.  success'}
+    return {'result': f'deleted category name :  {category.name}.  success'}
 
 
 @api.post("category/form")
-def post_category_form(request, form: CategorySchema= Form(...)):
+def post_category_form(request, form: CategorySchema = Form(...)):
     category = Category.objects.create(**form.dict())
     return {'name': category.name}
 
 
 @api.post("category/form/params")
-def post_category_form_params(request, name:str = Form(...), slug:str =Form(...)):
-    category= Category.objects.create(name=name, slug=slug)
+def post_category_form_params(request, name: str = Form(...), slug: str = Form(...)):
+    category = Category.objects.create(name=name, slug=slug)
     return {"name": category.name}
 
 
-
+@api.post("upload/product/image")
+def upload_media(request, prod_id: int = Form(...), file: UploadedFile = File(...)):
+    product = get_object_or_404(Product, id=prod_id)
+    media = Media.objects.create(img_url=file, product_inventory=product)
+    return {"id": media.id}
