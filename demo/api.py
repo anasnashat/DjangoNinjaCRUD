@@ -92,3 +92,12 @@ def upload_media(request, prod_id: int = Form(...), file: UploadedFile = File(..
     product = get_object_or_404(Product, id=prod_id)
     media = Media.objects.create(img_url=file, product_inventory=product)
     return {"id": media.id}
+
+
+@api.post("upload/product/image/multiple")
+def upload_media(request, prod_id: int = Form(...), files: List[UploadedFile] = File(...)):
+    product = get_object_or_404(Product, id=prod_id)
+    for file in files:
+        Media.objects.create(img_url=file, product_inventory=product)
+
+    return {"success":True}
