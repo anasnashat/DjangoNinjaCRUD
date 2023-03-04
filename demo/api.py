@@ -67,3 +67,11 @@ def update_product(request, product_id:int, data: ProductSchema):
     return {'success': True}
 
 
+@api.delete('delete/category/{category_id}')
+def delete_category(request, category_id:int):
+    category = get_object_or_404(Category, id=category_id)
+    category.delete()
+
+    return {'result':f'deleted category name :  {category.name}.  success'}
+
+
