@@ -1,7 +1,7 @@
 from typing import List
 
 from django.shortcuts import get_object_or_404
-from ninja import NinjaAPI
+from ninja import NinjaAPI, Form
 from .schema import CategorySchema, ProductSchema
 from .models import Category, Product
 
@@ -73,5 +73,18 @@ def delete_category(request, category_id:int):
     category.delete()
 
     return {'result':f'deleted category name :  {category.name}.  success'}
+
+
+@api.post("category/form")
+def post_category_form(request, form: CategorySchema= Form(...)):
+    category = Category.objects.create(**form.dict())
+    return {'name': category.name}
+
+
+@api.post("category/form/params")
+def post_category_form_params(request, name:str = Form(...), slug:str =Form(...)):
+    category= Category.objects.create(name=name, slug=slug)
+    return {"name": category.name}
+
 
 
