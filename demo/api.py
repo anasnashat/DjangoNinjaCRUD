@@ -101,3 +101,6 @@ def upload_media(request, prod_id: int = Form(...), files: List[UploadedFile] = 
         Media.objects.create(img_url=file, product_inventory=product)
 
     return {"success":True}
+
+
+
